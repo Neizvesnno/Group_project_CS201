@@ -1,38 +1,28 @@
 from datetime import timedelta
 
-from Bikes_stationns import Bike
+from Bikes_stationns import Bike, Station
 from Client import Client
 from Trip import Trip
 
 data_set = {
-    # Станції
     "stations": {1: "Станція А", 2: "Станція Б"},
-
-    # Велосипеди
     "bikes": [
         ("KB1001", "regular", 1),
-        ("KB1002", "electric", 1),
+        ("KB1002", "electro", 1),
         ("KB1003", "regular", 1),
         ("KB1004", "regular", 1),
-        ("KB2001", "electric", 2),
+        ("KB2001", "electro", 2),
     ],
-
-    # Клієнти
     "clients": [
         ("Оля", 300),
         ("Тарас", 100),
     ],
-
-    # Поїздки
     "rides": [
         {"client": "Тарас", "bike": "KB2001", "from_station": 2, "to_station": 1, "minutes": 15},
         {"client": "Оля", "bike": None, "from_station": 2, "to_station": 1, "minutes": 0},
         {"client": "Оля", "bike": "KB1002", "from_station": 1, "to_station": 2, "minutes": 20},
         {"client": "Тарас", "bike": "KB1001", "from_station": 1, "to_station": 2, "minutes": 10},
     ],
-
-
-    # assert: Тарас 15*5 = 75, Оля 20*5 = 100, Тарас 10*2 = 20.
     "expected": {
         "balances": {"Оля": 200, "Тарас": 5},
         "revenue": 195,
@@ -42,19 +32,21 @@ data_set = {
 
 
 def build_world(data):
-    """Створює станції (списки велосипедів), велосипеди та клієнтів"""
+    station_objects = {station_id: Station(station_id) for station_id in data["stations"]}
     stations = {station_id: [] for station_id in data["stations"]}
     bikes = {}
     for number, kind, station_id in data["bikes"]:
-        bike = Bike(number, kind == "electric")
+        bike = Bike(number, kind, station_objects[station_id])
         bikes[number] = bike
         stations[station_id].append(bike)
-    clients = {name: Client(name, balance) for name, balance in data["clients"]}
+    clients = {
+        name: Client(client_id, name, balance)
+        for client_id, (name, balance) in enumerate(data["clients"], start=1)
+    }
     return stations, bikes, clients
 
 
 def run_ride(ride, stations, bikes, clients):
-    """Проводить одну поїздку. Повертає (статус, Trip або None)"""
     client = clients[ride["client"]]
     source = stations[ride["from_station"]]
     target = stations[ride["to_station"]]
@@ -66,15 +58,11 @@ def run_ride(ride, stations, bikes, clients):
         return "bike_not_here", None
 
     trip = Trip(source, bike, client)
-    trip.take_bike()
-    if bike in source:
+    if not trip.take_bike():
         return "refused", None
 
-    trip.station = target
-    trip.return_bike()
-    trip.endTime = trip.startTime + timedelta(minutes=ride["minutes"])
-    trip.calculate_cost()
-    client.balance -= trip.cost
+    trip.start_time -= timedelta(minutes=ride["minutes"], seconds=-30)
+    trip.return_bike(target)
     return "ok", trip
 
 
