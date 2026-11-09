@@ -14,3 +14,5 @@ class Client:
     def add(self, amount: float):
         if amount > 0:
             self.balance += amount
+            return True
+        return False
