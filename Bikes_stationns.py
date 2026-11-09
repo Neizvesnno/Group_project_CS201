@@ -1,9 +1,9 @@
-class Station(Bike):
+class Station:
     def __init__(self, number):
         self.number = number
 
     def __str__(self):
-        return f'{self.number}
+        return f'{self.number}'
 
 
 class Bike:
@@ -11,9 +11,4 @@ class Bike:
         self.number = number
         self.type = type
         self.station = station
-
-    def price(self):
-        if self.price_per_minute:
-            return 5
-        else:
-            return 2
+        self.price_per_minute = 5 if type == "electro" else 2
