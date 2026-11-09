@@ -1,7 +1,3 @@
-Клас Client: належать атрибути: Id, ім'я, баланс
-<<<<<<< HEAD
-Функції первірки чи достатньо коштів на рахунку, списування коштів та поповнення балансу.
-Код:
 class Client:
     def __init__(self, client_id: int, name: str, balance: float):
         self.client_id = client_id
@@ -18,6 +14,3 @@ class Client:
     def add(self, amount: float):
         if amount > 0:
             self.balance += amount
-=======
-Функції первірки
->>>>>>> e6161b57ff4298de4eafd2c16791726fb3f56249
