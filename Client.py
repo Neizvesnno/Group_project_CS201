@@ -11,7 +11,7 @@ class Client:
     def has_enough_money(self, amount: float) -> bool:
         return self_balance >=amount
     def deduct_balance(self, amount: float) -> bool:
-        if self.hs_enough_money(amount):
+        if self.has_enough_money(amount):
            self.balance -= amount
            return True
         return False
